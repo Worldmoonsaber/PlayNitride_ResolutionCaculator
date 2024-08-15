@@ -15,6 +15,7 @@ namespace WinFormResolCalibrator
 
             pnlViewer.Controls.Add(_ucImgView);
             _ucImgView.Dock = DockStyle.Fill;
+           // _ucImgView.Initialize();
             _ucImgView.DoResize();
         }
 

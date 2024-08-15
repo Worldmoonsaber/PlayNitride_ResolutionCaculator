@@ -11,6 +11,8 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Numerics;
 using static System.Net.Mime.MediaTypeNames;
 using Image = System.Drawing.Image;
+using System.Runtime.Intrinsics;
+using System.Net.Sockets;
 
 namespace KaiwaProjects
 {
@@ -28,10 +30,11 @@ namespace KaiwaProjects
         private bool isMeasuring = false;
         private Rectangle measureRectImg;
         private Rectangle measureRectWindow;
-
+        private MeasurePms Pms;
+        private OpenCvSharp.Point[][] Contour;
         List<Tuple<Point2f, Point2f, float>> _xMeasureResult;
         List<Tuple<Point2f, Point2f, float>> _yMeasureResult;
-
+        List<OpenCvSharp.Point[]> lstContour = new List<OpenCvSharp.Point[]>();
         private double zoom = 1.0;
         private int panelWidth
         {
@@ -979,6 +982,9 @@ namespace KaiwaProjects
                 selectedHeight = Convert.ToInt32((double)height / zoom);
             }
 
+            if (selectedWidth * selectedHeight == 0)
+                return;
+
             measureRectImg = new Rectangle(selectedX, selectedY, selectedWidth, selectedHeight);
             measureRectWindow = new Rectangle(x,y, width, height);
 
@@ -986,8 +992,17 @@ namespace KaiwaProjects
             Bitmap CroppedImage = Image.Clone(new System.Drawing.Rectangle(selectedX, selectedY, selectedWidth, selectedHeight), Image.PixelFormat);
             Mat tmp = BmpToMat(CroppedImage);
 
-            getMeasureResult(tmp,out _xMeasureResult,out _yMeasureResult);
 
+            if (Pms == null)
+                Pms = new MeasurePms();
+
+            
+
+            LineIntervalMeasurement(tmp,out _xMeasureResult,out _yMeasureResult,out lstContour, Pms);
+
+
+
+            CroppedImage.Dispose();
             isMeasuring = true;
 
         }
@@ -1391,6 +1406,9 @@ namespace KaiwaProjects
                         SolidBrush brush = new SolidBrush(Color.Black);
                         System.Drawing.Font font= new System.Drawing.Font("Calibri", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
 
+                        double xRatio = (1.0 * measureRectWindow.Width) / (1.0 * measureRectImg.Width);
+                        double yRatio = (1.0 * measureRectWindow.Height) / (1.0 * measureRectImg.Height);
+
                         for (int i = 0; i < _xMeasureResult.Count; i++)
                         {
                             Pen pen1 = new Pen(Color.Red, 1); //畫筆
@@ -1399,9 +1417,6 @@ namespace KaiwaProjects
 
                             Point2f p1 = _xMeasureResult[i].Item1;
                             Point2f p2 = _xMeasureResult[i].Item2;
-
-                            double xRatio= (1.0*measureRectWindow.Width)/(1.0*measureRectImg.Width);
-                            double  yRatio= (1.0 * measureRectWindow.Height) / (1.0 * measureRectImg.Height);
 
                             Point pt1 = new Point(measureRectWindow.X + (int)(p1.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio));
                             Point pt2 = new Point(measureRectWindow.X + (int)(p2.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio));
@@ -1422,9 +1437,6 @@ namespace KaiwaProjects
                             Point2f p1 = _yMeasureResult[i].Item1;
                             Point2f p2 = _yMeasureResult[i].Item2;
 
-                            double xRatio = (1.0 * measureRectWindow.Width) / (1.0 * measureRectImg.Width);
-                            double yRatio = (1.0 * measureRectWindow.Height) / (1.0 * measureRectImg.Height);
-
                             Point pt1 = new Point(measureRectWindow.X + (int)(p1.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio));
                             Point pt2 = new Point(measureRectWindow.X + (int)(p1.X * xRatio), measureRectWindow.Y + (int)(p2.Y * yRatio));
                             g.DrawLine(pen1, pt1, pt2);
@@ -1434,6 +1446,16 @@ namespace KaiwaProjects
                             float y = 0.5f * (pt1.Y + pt2.Y);
                             g.DrawString(drawString, font, brush, x, y);
                         }
+
+                        Brush aBrush = (Brush)Brushes.DarkRed;
+
+
+                        for (int i = 0; i < lstContour.Count; i++)
+                            for (int j = 0; j < lstContour[i].Length; j++)
+                            {
+                                Point pt1 = new Point(measureRectWindow.X + (int)(lstContour[i][j].X * xRatio), measureRectWindow.Y + (int)(lstContour[i][j].Y * yRatio));
+                                g.FillEllipse(aBrush, pt1.X, pt1.Y, 3, 3);
+                            }
 
                     }
 
@@ -1446,57 +1468,143 @@ namespace KaiwaProjects
 		}
 
 
-        public static void getMeasureResult(Mat Img,out List<Tuple<Point2f,Point2f,float>> xMeasureResult, out List<Tuple<Point2f, Point2f, float>> yMeasureResult)
+        private static void LineIntervalMeasurement(Mat Img,out List<Tuple<Point2f,Point2f,float>> xMeasureResult, out List<Tuple<Point2f, Point2f, float>> yMeasureResult, out List<OpenCvSharp.Point[]> SelectContour, MeasurePms Pm)
         {
+            OpenCvSharp.Point[][] vContourForXMeasurement=null;
+            OpenCvSharp.Point[][] vContourForYMeasurement=null;
             xMeasureResult = new List<Tuple<Point2f, Point2f, float>>();
             yMeasureResult = new List<Tuple<Point2f, Point2f, float>>();
-
+            SelectContour = new List<OpenCvSharp.Point[]>();
             Mat result;
-            result=Img.Threshold(90, 255, ThresholdTypes.BinaryInv);
 
-            OpenCvSharp.Size sz = new OpenCvSharp.Size(20, 20);
+            if(Pm.IsThresholdInvert)
+                result = Img.Threshold(Pm.ThresholdValue, 255, ThresholdTypes.BinaryInv);
+            else
+                result = Img.Threshold(Pm.ThresholdValue, 255, ThresholdTypes.Binary);
+
+            OpenCvSharp.Size sz = new OpenCvSharp.Size(Pm.Filter_Size, Pm.Filter_Size);
             Mat element=Cv2.GetStructuringElement(MorphShapes.Rect, sz, new OpenCvSharp.Point(-1, -1));
 
             Cv2.MorphologyEx(result, result, MorphTypes.Close, element);
+            Cv2.MorphologyEx(result, result, MorphTypes.Open, element);
 
-            OpenCvSharp.Point[][] vContour=null;
+            OpenCvSharp.Point[][] vContour = null;
             HierarchyIndex[] vhi = null;
-            Cv2.FindContours(result,out vContour,out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+            Cv2.FindContours(result, out vContour, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone);
 
-            List<Point2f> vPtCenter=new List<Point2f>();
+            Mat imgContour = new Mat(Img.Size(), MatType.CV_8UC1);
 
+            for (int i = 0; i < vContour.Length; i++)
+                Cv2.DrawContours(imgContour, vContour, i, new Scalar(255, 255, 255), 1);
+
+            Mat t_mat;
+            Mat TranslationMat;
+            
+            t_mat = Mat.Zeros(2, 3,MatType.CV_32FC1);
+            t_mat.Set<float>(0, 0, 1);
+            t_mat.Set<float>(0, 2, Pm.SelectSide);
+            t_mat.Set<float>(1, 1, 1);
+            t_mat.Set<float>(1, 2, 0);
+
+            if (Img.Size().Width > Img.Size().Height)
+            {
+                TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
+                Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+
+                Mat X_DIR_Filter;
+                X_DIR_Filter = imgContour - TranslationMat;
+                X_DIR_Filter = X_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+
+                vhi = null;
+                Cv2.FindContours(X_DIR_Filter, out vContourForXMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
+                GetMeasureResult(0, vContourForXMeasurement, out xMeasureResult, out SelectContour);
+            }
+            else
+            {
+                t_mat = Mat.Zeros(2, 3, MatType.CV_32FC1);
+                t_mat.Set<float>(0, 0, 1);
+                t_mat.Set<float>(0, 2, 0);
+                t_mat.Set<float>(1, 1, 1);
+                t_mat.Set<float>(1, 2, Pm.SelectSide);
+
+                TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
+                Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+
+                Mat Y_DIR_Filter;
+                Y_DIR_Filter = imgContour - TranslationMat;
+                Y_DIR_Filter = Y_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+
+                vhi = null;
+                Cv2.FindContours(Y_DIR_Filter, out vContourForYMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
+                GetMeasureResult(1, vContourForYMeasurement, out yMeasureResult, out SelectContour);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dir">0: X方向量測  1:Y方向量測</param>
+        /// <param name="vContour"></param>
+        /// <param name="result"></param>
+        /// <param name="ContourSelected"></param>
+        private static void GetMeasureResult(int dir, OpenCvSharp.Point[][] vContour, out List<Tuple<Point2f, Point2f, float>> result,out List<OpenCvSharp.Point[]> ContourSelected)
+        {
+            result = new List<Tuple<Point2f, Point2f, float>>();
+            ContourSelected = new List<OpenCvSharp.Point[]>();
+
+            List<OpenCvSharp.Point[]> vAccept=new List<OpenCvSharp.Point[]>();
             for (int i = 0; i < vContour.Length; i++)
             {
-                float xx = 0;
-                float yy = 0;
+                if (vContour[i].Length == 1)
+                    continue;
 
-                for (int j = 0; j < vContour[i].Length; j++)
-                {
-                    xx += vContour[i][j].X;
-                    yy += vContour[i][j].Y;
-                }
-
-                vPtCenter.Add(new Point2f(xx / vContour[i].Length, yy / vContour[i].Length));
+                vAccept.Add(vContour[i]);
             }
 
-            for (int i = 0; i < vContour.Length; i++)
-                for (int j = i + 1; j < vContour.Length; j++)
+            List<Point2f> vPtRef=new List<Point2f>();
+            for (int i = 0; i < vAccept.Count; i++)
+            {
+                float xx = 0; float yy = 0;
+                for (int j = 0; j < vAccept[i].Length; j++)
                 {
-                    float xDist = Math.Abs(vPtCenter[i].X - vPtCenter[j].X);
-                    float yDist = Math.Abs(vPtCenter[i].Y - vPtCenter[j].Y);
-
-                    if (xDist > 5* yDist)
-                    {
-                        xMeasureResult.Add(new Tuple<Point2f, Point2f, float>(vPtCenter[i], vPtCenter[j], xDist));
-                    }
-                    else if(xDist * 5 < yDist)
-                    {
-                        yMeasureResult.Add(new Tuple<Point2f, Point2f, float>(vPtCenter[i], vPtCenter[j], yDist));
-                    }
+                    xx += vAccept[i][j].X;
+                    yy += vAccept[i][j].Y;
                 }
 
+                vPtRef.Add(new Point2f(xx / vAccept[i].Length, yy / vAccept[i].Length));
+            }
 
+            Dictionary<int, OpenCvSharp.Point[]> dicPoints = new Dictionary<int, OpenCvSharp.Point[]>();
+
+            for (int i = 0; i < vAccept.Count - 1; i++)
+            {
+                if (vAccept.Count == 1)
+                    break;
+
+                float dist;
+
+                if (dir == 0)
+                    dist = Math.Abs(vPtRef[i].X - vPtRef[i + 1].X);
+                else
+                    dist = Math.Abs(vPtRef[i].Y - vPtRef[i + 1].Y);
+
+                if (dist < 1)
+                    continue;
+
+                if (!dicPoints.ContainsKey(i))
+                    dicPoints.Add(i, vAccept[i]);
+
+                if (!dicPoints.ContainsKey(i+1))
+                    dicPoints.Add(i+1, vAccept[i+1]);
+
+
+                result.Add(new Tuple<Point2f, Point2f, float>(vPtRef[i], vPtRef[i + 1], dist));
+            }
+
+            ContourSelected = (List<OpenCvSharp.Point[]>)dicPoints.Values.ToList();
         }
+        
+
 
         public static Mat BmpToMat(Bitmap bitImg)
         {
@@ -1566,7 +1674,36 @@ namespace KaiwaProjects
             return result;
         }
 
+
+        public void AlogoParameterUpdate(MeasurePms _pm)
+        {
+            Pms = _pm;
+
+            Bitmap CroppedImage = Image.Clone(new System.Drawing.Rectangle(measureRectImg.X, measureRectImg.Y, measureRectImg.Width, measureRectImg.Height), Image.PixelFormat);
+            Mat tmp = BmpToMat(CroppedImage);
+            LineIntervalMeasurement(tmp, out _xMeasureResult, out _yMeasureResult,out lstContour, Pms);
+            isMeasuring = true;
+            CroppedImage.Dispose();
+        }
     }
 
+
+    public class MeasurePms
+    {
+        public MeasurePms()
+        {
+            IsColorDifferent = true;
+            IsThresholdInvert = true;
+            ThresholdValue = 125;
+            Filter_Size = 10;
+            SelectSide = -1;
+        }
+
+        public bool IsColorDifferent;
+        public bool IsThresholdInvert;
+        public int  ThresholdValue;
+        public int  Filter_Size;
+        public int  SelectSide;
+    };
 
 }

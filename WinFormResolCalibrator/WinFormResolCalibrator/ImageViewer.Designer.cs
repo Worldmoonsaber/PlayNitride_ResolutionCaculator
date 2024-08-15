@@ -53,6 +53,21 @@
             tsmiDrag = new ToolStripMenuItem();
             tsmiMeasure = new ToolStripMenuItem();
             measureParameterToolStripMenuItem = new ToolStripMenuItem();
+            pnlParameter = new Panel();
+            groupBox1 = new GroupBox();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            tlpColorDifferent = new TableLayoutPanel();
+            lbThreholdValue = new Label();
+            label2 = new Label();
+            trbThreshold = new TrackBar();
+            label4 = new Label();
+            cbInvertThreshold = new CheckBox();
+            label3 = new Label();
+            cbbSelectSide = new ComboBox();
+            nudLineSize = new NumericUpDown();
+            tableLayoutPanel5 = new TableLayoutPanel();
+            rbColorisSimiliar = new RadioButton();
+            rbColorDifferent = new RadioButton();
             sbVert = new VScrollBar();
             sbHoriz = new HScrollBar();
             sbPanel = new Panel();
@@ -62,6 +77,13 @@
             tableLayoutPanel2.SuspendLayout();
             pbFull.SuspendLayout();
             cms.SuspendLayout();
+            pnlParameter.SuspendLayout();
+            groupBox1.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
+            tlpColorDifferent.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)trbThreshold).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)nudLineSize).BeginInit();
+            tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbPanel).BeginInit();
             SuspendLayout();
             // 
@@ -236,6 +258,7 @@
             pbFull.BackColor = SystemColors.ControlLight;
             pbFull.BorderStyle = BorderStyle.FixedSingle;
             pbFull.ContextMenuStrip = cms;
+            pbFull.Controls.Add(pnlParameter);
             pbFull.Controls.Add(sbVert);
             pbFull.Controls.Add(sbHoriz);
             pbFull.Controls.Add(sbPanel);
@@ -261,19 +284,19 @@
             // 
             cms.Items.AddRange(new ToolStripItem[] { openImageToolStripMenuItem, fitImageToolStripMenuItem, previewWindowToolStripMenuItem, selectModeToolStripMenuItem, measureParameterToolStripMenuItem });
             cms.Name = "cms";
-            cms.Size = new Size(185, 114);
+            cms.Size = new Size(168, 114);
             // 
             // openImageToolStripMenuItem
             // 
             openImageToolStripMenuItem.Name = "openImageToolStripMenuItem";
-            openImageToolStripMenuItem.Size = new Size(184, 22);
+            openImageToolStripMenuItem.Size = new Size(167, 22);
             openImageToolStripMenuItem.Text = "Open Image";
             openImageToolStripMenuItem.Click += btnOpen_Click;
             // 
             // fitImageToolStripMenuItem
             // 
             fitImageToolStripMenuItem.Name = "fitImageToolStripMenuItem";
-            fitImageToolStripMenuItem.Size = new Size(184, 22);
+            fitImageToolStripMenuItem.Size = new Size(167, 22);
             fitImageToolStripMenuItem.Text = "Fit Image";
             fitImageToolStripMenuItem.Click += btnFitToScreen_Click;
             // 
@@ -283,7 +306,7 @@
             previewWindowToolStripMenuItem.CheckOnClick = true;
             previewWindowToolStripMenuItem.CheckState = CheckState.Checked;
             previewWindowToolStripMenuItem.Name = "previewWindowToolStripMenuItem";
-            previewWindowToolStripMenuItem.Size = new Size(184, 22);
+            previewWindowToolStripMenuItem.Size = new Size(167, 22);
             previewWindowToolStripMenuItem.Text = "Preview Window";
             previewWindowToolStripMenuItem.Click += btnPreview_Click;
             // 
@@ -291,7 +314,7 @@
             // 
             selectModeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { tsmiDrag, tsmiMeasure });
             selectModeToolStripMenuItem.Name = "selectModeToolStripMenuItem";
-            selectModeToolStripMenuItem.Size = new Size(184, 22);
+            selectModeToolStripMenuItem.Size = new Size(167, 22);
             selectModeToolStripMenuItem.Text = "Select Mode";
             selectModeToolStripMenuItem.Click += btnMode_Click;
             // 
@@ -315,25 +338,214 @@
             // 
             // measureParameterToolStripMenuItem
             // 
+            measureParameterToolStripMenuItem.CheckOnClick = true;
             measureParameterToolStripMenuItem.Name = "measureParameterToolStripMenuItem";
-            measureParameterToolStripMenuItem.Size = new Size(184, 22);
-            measureParameterToolStripMenuItem.Text = "Measure Parameter";
+            measureParameterToolStripMenuItem.Size = new Size(167, 22);
+            measureParameterToolStripMenuItem.Text = "Measure Setting";
+            measureParameterToolStripMenuItem.Click += measureParameterToolStripMenuItem_Click;
+            // 
+            // pnlParameter
+            // 
+            pnlParameter.Controls.Add(groupBox1);
+            pnlParameter.Location = new Point(216, 146);
+            pnlParameter.Name = "pnlParameter";
+            pnlParameter.Size = new Size(309, 205);
+            pnlParameter.TabIndex = 11;
+            pnlParameter.Visible = false;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(tableLayoutPanel3);
+            groupBox1.Dock = DockStyle.Fill;
+            groupBox1.Location = new Point(0, 0);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(309, 205);
+            groupBox1.TabIndex = 13;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Parameter";
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 1;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 44.04762F));
+            tableLayoutPanel3.Controls.Add(tlpColorDifferent, 0, 1);
+            tableLayoutPanel3.Controls.Add(tableLayoutPanel5, 0, 0);
+            tableLayoutPanel3.Dock = DockStyle.Fill;
+            tableLayoutPanel3.Location = new Point(3, 19);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 2;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 4.371585F));
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 95.62842F));
+            tableLayoutPanel3.Size = new Size(303, 183);
+            tableLayoutPanel3.TabIndex = 1;
+            // 
+            // tlpColorDifferent
+            // 
+            tlpColorDifferent.ColumnCount = 3;
+            tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45.19774F));
+            tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54.80226F));
+            tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 77F));
+            tlpColorDifferent.Controls.Add(lbThreholdValue, 2, 0);
+            tlpColorDifferent.Controls.Add(label2, 0, 0);
+            tlpColorDifferent.Controls.Add(trbThreshold, 1, 0);
+            tlpColorDifferent.Controls.Add(label4, 0, 2);
+            tlpColorDifferent.Controls.Add(cbInvertThreshold, 0, 1);
+            tlpColorDifferent.Controls.Add(label3, 0, 3);
+            tlpColorDifferent.Controls.Add(cbbSelectSide, 1, 3);
+            tlpColorDifferent.Controls.Add(nudLineSize, 1, 2);
+            tlpColorDifferent.Dock = DockStyle.Fill;
+            tlpColorDifferent.Location = new Point(3, 11);
+            tlpColorDifferent.Name = "tlpColorDifferent";
+            tlpColorDifferent.RowCount = 4;
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tlpColorDifferent.Size = new Size(297, 169);
+            tlpColorDifferent.TabIndex = 0;
+            // 
+            // lbThreholdValue
+            // 
+            lbThreholdValue.Anchor = AnchorStyles.None;
+            lbThreholdValue.AutoSize = true;
+            lbThreholdValue.Location = new Point(244, 13);
+            lbThreholdValue.Name = "lbThreholdValue";
+            lbThreholdValue.Size = new Size(28, 15);
+            lbThreholdValue.TabIndex = 5;
+            lbThreholdValue.Text = "125";
+            lbThreholdValue.Click += lbThreholdValue_Click;
+            // 
+            // label2
+            // 
+            label2.Anchor = AnchorStyles.None;
+            label2.AutoSize = true;
+            label2.Location = new Point(18, 13);
+            label2.Name = "label2";
+            label2.Size = new Size(63, 15);
+            label2.TabIndex = 2;
+            label2.Text = "Threshold";
+            // 
+            // trbThreshold
+            // 
+            trbThreshold.Location = new Point(102, 3);
+            trbThreshold.Maximum = 255;
+            trbThreshold.Name = "trbThreshold";
+            trbThreshold.Size = new Size(91, 36);
+            trbThreshold.TabIndex = 1;
+            trbThreshold.Value = 125;
+            trbThreshold.Scroll += trbThreshold_Scroll;
+            // 
+            // label4
+            // 
+            label4.Anchor = AnchorStyles.None;
+            label4.AutoSize = true;
+            label4.Location = new Point(19, 97);
+            label4.Name = "label4";
+            label4.Size = new Size(60, 15);
+            label4.TabIndex = 11;
+            label4.Text = "Filter Size";
+            // 
+            // cbInvertThreshold
+            // 
+            cbInvertThreshold.Anchor = AnchorStyles.None;
+            cbInvertThreshold.AutoSize = true;
+            cbInvertThreshold.Checked = true;
+            cbInvertThreshold.CheckState = CheckState.Checked;
+            tlpColorDifferent.SetColumnSpan(cbInvertThreshold, 2);
+            cbInvertThreshold.Location = new Point(51, 53);
+            cbInvertThreshold.Name = "cbInvertThreshold";
+            cbInvertThreshold.Size = new Size(116, 19);
+            cbInvertThreshold.TabIndex = 6;
+            cbInvertThreshold.Text = "Invert Threshold";
+            cbInvertThreshold.UseVisualStyleBackColor = true;
+            cbInvertThreshold.CheckedChanged += checkBox1_CheckedChanged;
+            // 
+            // label3
+            // 
+            label3.Anchor = AnchorStyles.None;
+            label3.AutoSize = true;
+            label3.Location = new Point(15, 140);
+            label3.Name = "label3";
+            label3.Size = new Size(69, 15);
+            label3.TabIndex = 12;
+            label3.Text = "Select Side";
+            // 
+            // cbbSelectSide
+            // 
+            cbbSelectSide.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbbSelectSide.FormattingEnabled = true;
+            cbbSelectSide.Items.AddRange(new object[] { "Right/Down", "Left/Up" });
+            cbbSelectSide.Location = new Point(102, 129);
+            cbbSelectSide.Name = "cbbSelectSide";
+            cbbSelectSide.Size = new Size(114, 23);
+            cbbSelectSide.TabIndex = 13;
+            cbbSelectSide.SelectedIndexChanged += cbbSelectSide_SelectedIndexChanged;
+            // 
+            // nudLineSize
+            // 
+            nudLineSize.Location = new Point(102, 87);
+            nudLineSize.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudLineSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            nudLineSize.Name = "nudLineSize";
+            nudLineSize.Size = new Size(114, 23);
+            nudLineSize.TabIndex = 14;
+            nudLineSize.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            nudLineSize.ValueChanged += nudLineSize_ValueChanged;
+            // 
+            // tableLayoutPanel5
+            // 
+            tableLayoutPanel5.ColumnCount = 2;
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.Controls.Add(rbColorisSimiliar, 1, 0);
+            tableLayoutPanel5.Controls.Add(rbColorDifferent, 0, 0);
+            tableLayoutPanel5.Dock = DockStyle.Fill;
+            tableLayoutPanel5.Location = new Point(3, 3);
+            tableLayoutPanel5.Name = "tableLayoutPanel5";
+            tableLayoutPanel5.RowCount = 1;
+            tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel5.Size = new Size(297, 2);
+            tableLayoutPanel5.TabIndex = 0;
+            tableLayoutPanel5.Visible = false;
+            // 
+            // rbColorisSimiliar
+            // 
+            rbColorisSimiliar.AutoSize = true;
+            rbColorisSimiliar.Location = new Point(151, 3);
+            rbColorisSimiliar.Name = "rbColorisSimiliar";
+            rbColorisSimiliar.Size = new Size(111, 1);
+            rbColorisSimiliar.TabIndex = 1;
+            rbColorisSimiliar.Text = "Color is Similiar";
+            rbColorisSimiliar.UseVisualStyleBackColor = true;
+            // 
+            // rbColorDifferent
+            // 
+            rbColorDifferent.AutoSize = true;
+            rbColorDifferent.Checked = true;
+            rbColorDifferent.Location = new Point(3, 3);
+            rbColorDifferent.Name = "rbColorDifferent";
+            rbColorDifferent.Size = new Size(119, 1);
+            rbColorDifferent.TabIndex = 0;
+            rbColorDifferent.TabStop = true;
+            rbColorDifferent.Text = "Color is Different";
+            rbColorDifferent.UseVisualStyleBackColor = true;
+            rbColorDifferent.CheckedChanged += rbColorDifferent_CheckedChanged;
             // 
             // sbVert
             // 
-            sbVert.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            sbVert.Location = new Point(499, 0);
+            sbVert.Dock = DockStyle.Right;
+            sbVert.Location = new Point(502, 0);
             sbVert.Name = "sbVert";
-            sbVert.Size = new Size(17, 329);
+            sbVert.Size = new Size(17, 330);
             sbVert.TabIndex = 0;
             sbVert.Scroll += sbVert_Scroll;
             // 
             // sbHoriz
             // 
-            sbHoriz.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            sbHoriz.Location = new Point(0, 328);
+            sbHoriz.Dock = DockStyle.Bottom;
+            sbHoriz.Location = new Point(0, 330);
             sbHoriz.Name = "sbHoriz";
-            sbHoriz.Size = new Size(499, 17);
+            sbHoriz.Size = new Size(519, 17);
             sbHoriz.TabIndex = 1;
             sbHoriz.Scroll += sbHoriz_Scroll;
             // 
@@ -381,6 +593,15 @@
             tableLayoutPanel2.ResumeLayout(false);
             pbFull.ResumeLayout(false);
             cms.ResumeLayout(false);
+            pnlParameter.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
+            tableLayoutPanel3.ResumeLayout(false);
+            tlpColorDifferent.ResumeLayout(false);
+            tlpColorDifferent.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)trbThreshold).EndInit();
+            ((System.ComponentModel.ISupportInitialize)nudLineSize).EndInit();
+            tableLayoutPanel5.ResumeLayout(false);
+            tableLayoutPanel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbPanel).EndInit();
             ResumeLayout(false);
         }
@@ -413,5 +634,20 @@
         private ToolStripMenuItem openImageToolStripMenuItem;
         private Panel panel1;
         private ToolStripMenuItem measureParameterToolStripMenuItem;
+        private Panel pnlParameter;
+        private TableLayoutPanel tableLayoutPanel3;
+        private Label lbThreholdValue;
+        private TrackBar trbThreshold;
+        private Label label2;
+        private CheckBox cbInvertThreshold;
+        private TableLayoutPanel tlpColorDifferent;
+        private GroupBox groupBox1;
+        private TableLayoutPanel tableLayoutPanel5;
+        private RadioButton rbColorisSimiliar;
+        private RadioButton rbColorDifferent;
+        private Label label4;
+        private Label label3;
+        private ComboBox cbbSelectSide;
+        private NumericUpDown nudLineSize;
     }
 }

@@ -425,14 +425,13 @@ namespace KaiwaProjects
             // DrawEngine & DrawObject initiralization
             drawEngine = new KP_DrawEngine();
             drawing = new KP_DrawObject(this);
-
             // Stream to initialize the cursors.
             Stream imgStream = null;
 
             try
             {
-                Assembly a = Assembly.GetExecutingAssembly();    
-                grabCursor = new Cursor("Resource//Grab.cur");    
+                Assembly a = Assembly.GetExecutingAssembly();
+                grabCursor = new Cursor("Resource//Grab.cur");
                 dragCursor = new Cursor("Resource//Drag.cur");
             }
             catch
@@ -655,7 +654,9 @@ namespace KaiwaProjects
             UpdatePanels(true);
 
 
-            pbPanel.Location = new Point(pbFull.Width-pbPanel.Width, 0);
+            pbPanel.Location = new Point(pbFull.Width - pbPanel.Width, 0);
+
+            pnlParameter.Location = new Point(pbFull.Width - pnlParameter.Width, pbFull.Height - pnlParameter.Height);
         }
 
         private void pbFull_Paint(object sender, PaintEventArgs e)
@@ -729,10 +730,10 @@ namespace KaiwaProjects
                 // Position of the panel to the screen
                 Point ptPbFull = PointToScreen(pbFull.Location);
 
-                
+
                 // Zoom to my selection
                 //drawing.ZoomToSelection(rect, ptPbFull);
-                drawing.SelectionToMeasure(rect, ptPbFull); 
+                drawing.SelectionToMeasure(rect, ptPbFull);
 
                 // Refresh my screen & update my preview panel
                 pbFull.Refresh();
@@ -1379,6 +1380,67 @@ namespace KaiwaProjects
             tsmi.Checked = true;
             btnMode_Click(null, null);
         }
+
+        private void measureParameterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pnlParameter.Visible = !pnlParameter.Visible;
+
+            if (cbbSelectSide.SelectedIndex == -1)
+                cbbSelectSide.SelectedIndex = 0;
+        }
+
+        private void trbThreshold_Scroll(object sender, EventArgs e)
+        {
+            lbThreholdValue.Text = trbThreshold.Value.ToString();
+            updateParameter();
+        }
+
+        private void lbThreholdValue_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            updateParameter();
+        }
+
+        private void updateParameter()
+        {
+            MeasurePms pm = new MeasurePms();
+            pm.IsColorDifferent = rbColorDifferent.Checked;
+            pm.IsThresholdInvert = cbInvertThreshold.Checked;
+            pm.ThresholdValue = trbThreshold.Value;
+            pm.Filter_Size = (int)nudLineSize.Value;
+
+            if (cbbSelectSide.SelectedIndex == 0)
+                pm.SelectSide = -1;
+            else
+                pm.SelectSide = 1;
+
+            drawing.AlogoParameterUpdate(pm);
+            pbFull.Refresh();
+            UpdatePanels(true);
+
+        }
+
+        private void rbColorDifferent_CheckedChanged(object sender, EventArgs e)
+        {
+            updateParameter();
+        }
+
+        private void cbbSelectSide_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            updateParameter();
+
+        }
+
+        private void nudLineSize_ValueChanged(object sender, EventArgs e)
+        {
+            updateParameter();
+
+        }
+
     }
 
     public class ImageViewerRotationEventArgs : EventArgs
