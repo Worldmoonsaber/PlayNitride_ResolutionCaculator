@@ -955,6 +955,9 @@ namespace KaiwaProjects
 
         public void SelectionToMeasure(Rectangle selection, Point ptPbFull)
         {
+            if (Image == null)
+                return;
+
             //isMeasuring = false;
             //處理方式
 
