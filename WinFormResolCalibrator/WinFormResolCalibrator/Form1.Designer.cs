@@ -47,7 +47,7 @@
             ClientSize = new Size(901, 597);
             Controls.Add(pnlViewer);
             Name = "Form1";
-            Text = "Resol Calibrator 1.0";
+            Text = "Resol Calibrator 1.0.1";
             Load += Form1_Load;
             ResumeLayout(false);
         }

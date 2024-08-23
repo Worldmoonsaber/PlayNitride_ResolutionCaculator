@@ -35,6 +35,8 @@ namespace KaiwaProjects
         private bool showPreview = true;
         private Cursor grabCursor = null;
         private Cursor dragCursor = null;
+        private bool _isEdgeMode = true;
+        private int _LineWidthFilter = 35;
 
         public delegate void ImageViewerRotationEventHandler(object sender, ImageViewerRotationEventArgs e);
         public event ImageViewerRotationEventHandler AfterRotation;
@@ -1412,12 +1414,14 @@ namespace KaiwaProjects
             pm.IsThresholdInvert = cbInvertThreshold.Checked;
             pm.ThresholdValue = trbThreshold.Value;
             pm.Filter_Size = (int)nudLineSize.Value;
+            pm.IsEgeMode = _isEdgeMode;
 
             if (cbbSelectSide.SelectedIndex == 0)
                 pm.SelectSide = -1;
             else
                 pm.SelectSide = 1;
 
+            pm.LineWidthFilter = _LineWidthFilter;
             drawing.AlogoParameterUpdate(pm);
             pbFull.Refresh();
             UpdatePanels(true);
@@ -1441,6 +1445,28 @@ namespace KaiwaProjects
 
         }
 
+
+        private void tbcMethod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tbcMethod.SelectedTab == tpEdge)
+                _isEdgeMode = true;
+            else
+                _isEdgeMode = false;
+
+            updateParameter();
+        }
+
+        private void tpLineCenter_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudLineWidth_ValueChanged(object sender, EventArgs e)
+        {
+            _LineWidthFilter = (int)nudLineWidthFilter.Value;
+
+            updateParameter();
+        }
     }
 
     public class ImageViewerRotationEventArgs : EventArgs

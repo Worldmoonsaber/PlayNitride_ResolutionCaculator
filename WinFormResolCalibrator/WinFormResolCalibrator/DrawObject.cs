@@ -13,6 +13,8 @@ using static System.Net.Mime.MediaTypeNames;
 using Image = System.Drawing.Image;
 using System.Runtime.Intrinsics;
 using System.Net.Sockets;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace KaiwaProjects
 {
@@ -955,8 +957,7 @@ namespace KaiwaProjects
 
         public void SelectionToMeasure(Rectangle selection, Point ptPbFull)
         {
-            if (Image == null)
-                return;
+
 
             //isMeasuring = false;
             //處理方式
@@ -991,6 +992,8 @@ namespace KaiwaProjects
             measureRectImg = new Rectangle(selectedX, selectedY, selectedWidth, selectedHeight);
             measureRectWindow = new Rectangle(x,y, width, height);
 
+            if (Image == null)
+                return;
             ////----ROI Crop 測試 位置是預期的位置
             Bitmap CroppedImage = Image.Clone(new System.Drawing.Rectangle(selectedX, selectedY, selectedWidth, selectedHeight), Image.PixelFormat);
             Mat tmp = BmpToMat(CroppedImage);
@@ -1002,8 +1005,6 @@ namespace KaiwaProjects
             
 
             LineIntervalMeasurement(tmp,out _xMeasureResult,out _yMeasureResult,out lstContour, Pms);
-
-
 
             CroppedImage.Dispose();
             isMeasuring = true;
@@ -1429,6 +1430,20 @@ namespace KaiwaProjects
                             float x = 0.5f*(pt1.X+pt2.X);
                             float y = 0.5f * (pt1.Y + pt2.Y);
                             g.DrawString(drawString, font, brush, x, y);
+
+                            if (!Pms.IsEgeMode)
+                            {
+                                pen1.DashStyle = DashStyle.DashDotDot;
+                                pen1.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                                pen1.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+
+                                Point pt1_1 = new Point(measureRectWindow.X + (int)(p1.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio) - 100);
+                                Point pt1_2 = new Point(measureRectWindow.X + (int)(p1.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio) + 100);
+                                Point pt2_1 = new Point(measureRectWindow.X + (int)(p2.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio) - 100);
+                                Point pt2_2 = new Point(measureRectWindow.X + (int)(p2.X * xRatio), measureRectWindow.Y + (int)(p1.Y * yRatio) + 100);
+                                g.DrawLine(pen1, pt1_1, pt1_2);
+                                g.DrawLine(pen1, pt2_1, pt2_2);
+                            }
                         }
 
                         for (int i = 0; i < _yMeasureResult.Count; i++)
@@ -1448,6 +1463,21 @@ namespace KaiwaProjects
                             float x = 0.5f * (pt1.X + pt2.X);
                             float y = 0.5f * (pt1.Y + pt2.Y);
                             g.DrawString(drawString, font, brush, x, y);
+
+                            if (!Pms.IsEgeMode)
+                            {
+                                pen1.DashStyle = DashStyle.DashDotDot;
+                                pen1.EndCap = System.Drawing.Drawing2D.LineCap.Round;
+                                pen1.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+
+                                Point pt1_1 = new Point(measureRectWindow.X + (int)(p1.X * xRatio) - 100, measureRectWindow.Y + (int)(p1.Y * yRatio));
+                                Point pt1_2 = new Point(measureRectWindow.X + (int)(p1.X * xRatio) + 100, measureRectWindow.Y + (int)(p1.Y * yRatio));
+                                Point pt2_1 = new Point(measureRectWindow.X + (int)(p1.X * xRatio) - 100, measureRectWindow.Y + (int)(p2.Y * yRatio));
+                                Point pt2_2 = new Point(measureRectWindow.X + (int)(p1.X * xRatio) + 100, measureRectWindow.Y + (int)(p2.Y * yRatio));
+
+                                g.DrawLine(pen1, pt1_1, pt1_2);
+                                g.DrawLine(pen1, pt2_1, pt2_2);
+                            }
                         }
 
                         Brush aBrush = (Brush)Brushes.DarkRed;
@@ -1471,78 +1501,145 @@ namespace KaiwaProjects
 		}
 
 
-        private static void LineIntervalMeasurement(Mat Img,out List<Tuple<Point2f,Point2f,float>> xMeasureResult, out List<Tuple<Point2f, Point2f, float>> yMeasureResult, out List<OpenCvSharp.Point[]> SelectContour, MeasurePms Pm)
+        private static void LineIntervalMeasurement(Mat Img, out List<Tuple<Point2f, Point2f, float>> xMeasureResult, out List<Tuple<Point2f, Point2f, float>> yMeasureResult, out List<OpenCvSharp.Point[]> SelectContour, MeasurePms Pm)
         {
-            OpenCvSharp.Point[][] vContourForXMeasurement=null;
-            OpenCvSharp.Point[][] vContourForYMeasurement=null;
+            OpenCvSharp.Point[][] vContourForXMeasurement = null;
+            OpenCvSharp.Point[][] vContourForYMeasurement = null;
             xMeasureResult = new List<Tuple<Point2f, Point2f, float>>();
             yMeasureResult = new List<Tuple<Point2f, Point2f, float>>();
             SelectContour = new List<OpenCvSharp.Point[]>();
             Mat result;
 
-            if(Pm.IsThresholdInvert)
+            if (Pm.IsThresholdInvert)
                 result = Img.Threshold(Pm.ThresholdValue, 255, ThresholdTypes.BinaryInv);
             else
                 result = Img.Threshold(Pm.ThresholdValue, 255, ThresholdTypes.Binary);
 
-            OpenCvSharp.Size sz = new OpenCvSharp.Size(Pm.Filter_Size, Pm.Filter_Size);
-            Mat element=Cv2.GetStructuringElement(MorphShapes.Rect, sz, new OpenCvSharp.Point(-1, -1));
-
-            Cv2.MorphologyEx(result, result, MorphTypes.Close, element);
-            Cv2.MorphologyEx(result, result, MorphTypes.Open, element);
-
-            OpenCvSharp.Point[][] vContour = null;
-            HierarchyIndex[] vhi = null;
-            Cv2.FindContours(result, out vContour, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone);
-
-            Mat imgContour = new Mat(Img.Size(), MatType.CV_8UC1);
-
-            for (int i = 0; i < vContour.Length; i++)
-                Cv2.DrawContours(imgContour, vContour, i, new Scalar(255, 255, 255), 1);
-
-            Mat t_mat;
-            Mat TranslationMat;
-            
-            t_mat = Mat.Zeros(2, 3,MatType.CV_32FC1);
-            t_mat.Set<float>(0, 0, 1);
-            t_mat.Set<float>(0, 2, Pm.SelectSide);
-            t_mat.Set<float>(1, 1, 1);
-            t_mat.Set<float>(1, 2, 0);
-
-            if (Img.Size().Width > Img.Size().Height)
+            if (Pm.IsEgeMode)
             {
-                TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
-                Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+                OpenCvSharp.Size sz = new OpenCvSharp.Size(Pm.Filter_Size, Pm.Filter_Size);
+                Mat element = Cv2.GetStructuringElement(MorphShapes.Rect, sz, new OpenCvSharp.Point(-1, -1));
 
-                Mat X_DIR_Filter;
-                X_DIR_Filter = imgContour - TranslationMat;
-                X_DIR_Filter = X_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+                Cv2.MorphologyEx(result, result, MorphTypes.Close, element);
+                Cv2.MorphologyEx(result, result, MorphTypes.Open, element);
 
-                vhi = null;
-                Cv2.FindContours(X_DIR_Filter, out vContourForXMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
-                GetMeasureResult(0, vContourForXMeasurement, out xMeasureResult, out SelectContour);
+                OpenCvSharp.Point[][] vContour = null;
+                HierarchyIndex[] vhi = null;
+
+                Cv2.FindContours(result, out vContour, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+                Mat imgContour = new Mat(Img.Size(), MatType.CV_8UC1);
+
+                for (int i = 0; i < vContour.Length; i++)
+                    Cv2.DrawContours(imgContour, vContour, i, new Scalar(255, 255, 255), 1);
+
+                Mat t_mat;
+                Mat TranslationMat;
+
+                t_mat = Mat.Zeros(2, 3, MatType.CV_32FC1);
+                t_mat.Set<float>(0, 0, 1);
+                t_mat.Set<float>(0, 2, Pm.SelectSide);
+                t_mat.Set<float>(1, 1, 1);
+                t_mat.Set<float>(1, 2, 0);
+
+                if (Img.Size().Width > Img.Size().Height)
+                {
+                    TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
+                    Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+
+                    Mat X_DIR_Filter;
+                    X_DIR_Filter = imgContour - TranslationMat;
+                    X_DIR_Filter = X_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+
+                    vhi = null;
+                    Cv2.FindContours(X_DIR_Filter, out vContourForXMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
+                    GetMeasureResult(0, vContourForXMeasurement, out xMeasureResult, out SelectContour);
+                }
+                else
+                {
+                    t_mat = Mat.Zeros(2, 3, MatType.CV_32FC1);
+                    t_mat.Set<float>(0, 0, 1);
+                    t_mat.Set<float>(0, 2, 0);
+                    t_mat.Set<float>(1, 1, 1);
+                    t_mat.Set<float>(1, 2, Pm.SelectSide);
+
+                    TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
+                    Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+
+                    Mat Y_DIR_Filter;
+                    Y_DIR_Filter = imgContour - TranslationMat;
+                    Y_DIR_Filter = Y_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+
+                    vhi = null;
+                    Cv2.FindContours(Y_DIR_Filter, out vContourForYMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
+                    GetMeasureResult(1, vContourForYMeasurement, out yMeasureResult, out SelectContour);
+                }
             }
             else
             {
-                t_mat = Mat.Zeros(2, 3, MatType.CV_32FC1);
-                t_mat.Set<float>(0, 0, 1);
-                t_mat.Set<float>(0, 2, 0);
-                t_mat.Set<float>(1, 1, 1);
-                t_mat.Set<float>(1, 2, Pm.SelectSide);
+                OpenCvSharp.Size sz = new OpenCvSharp.Size(Pm.LineWidthFilter/3, Pm.LineWidthFilter/3);
+                Mat element = Cv2.GetStructuringElement(MorphShapes.Rect, sz, new OpenCvSharp.Point(-1, -1));
 
-                TranslationMat = new Mat(result.Size(), MatType.CV_8UC1);
-                Cv2.WarpAffine(result, TranslationMat, t_mat, result.Size());
+                Cv2.MorphologyEx(result, result, MorphTypes.Close, element);
 
-                Mat Y_DIR_Filter;
-                Y_DIR_Filter = imgContour - TranslationMat;
-                Y_DIR_Filter = Y_DIR_Filter.Threshold(254, 255, ThresholdTypes.Binary);
+                sz = new OpenCvSharp.Size(Pm.LineWidthFilter, Pm.LineWidthFilter);
+                element = Cv2.GetStructuringElement(MorphShapes.Rect, sz, new OpenCvSharp.Point(-1, -1));
 
-                vhi = null;
-                Cv2.FindContours(Y_DIR_Filter, out vContourForYMeasurement, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone, null);
-                GetMeasureResult(1, vContourForYMeasurement, out yMeasureResult, out SelectContour);
+                Cv2.MorphologyEx(result, result, MorphTypes.Open, element);
+
+                OpenCvSharp.Point[][] vContour = null;
+                HierarchyIndex[] vhi = null;
+
+                Cv2.FindContours(result, out vContour, out vhi, RetrievalModes.External, ContourApproximationModes.ApproxNone);
+                Mat imgContour = new Mat(Img.Size(), MatType.CV_8UC1);
+
+                List<Point2f> vPtC = new List<Point2f>();
+
+                for (int u = 0; u < vContour.Length; u++)
+                {
+                    RotatedRect rRect = Cv2.MinAreaRect(vContour[u]);
+
+                    //if (Img.Size().Width > Img.Size().Height)
+                    //{
+                    //    if (rRect.Size.Width > Pm.LineWidthMax)
+                    //        continue;
+
+                    //    if (rRect.Size.Width < Pm.LineWidthMin)
+                    //        continue;
+                    //}
+    
+                    vPtC.Add(rRect.Center);
+
+                    SelectContour.Add(vContour[u].ToArray());
+                }
+
+
+
+                if (Img.Size().Width > Img.Size().Height)
+                {
+
+                    for (int i = 0; i < vPtC.Count-1; i++)
+                    {
+                        float dist = Math.Abs(vPtC[i].X - vPtC[i + 1].X);
+
+                        xMeasureResult.Add(new Tuple<Point2f, Point2f, float>(vPtC[i], vPtC[i+1], dist));
+                    }
+
+                }
+                else
+                {
+
+                    for (int i = 0; i < vPtC.Count-1; i++)
+                    {
+                        float dist = Math.Abs(vPtC[i].Y - vPtC[i + 1].Y);
+
+                        yMeasureResult.Add(new Tuple<Point2f, Point2f, float>(vPtC[i], vPtC[i + 1], dist));
+                    }
+
+                }
+
             }
-        }
 
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -1682,6 +1779,12 @@ namespace KaiwaProjects
         {
             Pms = _pm;
 
+            if (Image == null)
+                return;
+
+            if (measureRectImg.Width * measureRectImg.Height==0)
+                return;
+
             Bitmap CroppedImage = Image.Clone(new System.Drawing.Rectangle(measureRectImg.X, measureRectImg.Y, measureRectImg.Width, measureRectImg.Height), Image.PixelFormat);
             Mat tmp = BmpToMat(CroppedImage);
             LineIntervalMeasurement(tmp, out _xMeasureResult, out _yMeasureResult,out lstContour, Pms);
@@ -1700,6 +1803,8 @@ namespace KaiwaProjects
             ThresholdValue = 125;
             Filter_Size = 10;
             SelectSide = -1;
+            IsEgeMode = true;
+            LineWidthFilter = 35;
         }
 
         public bool IsColorDifferent;
@@ -1707,6 +1812,9 @@ namespace KaiwaProjects
         public int  ThresholdValue;
         public int  Filter_Size;
         public int  SelectSide;
+        public bool IsEgeMode;
+        public int LineWidthFilter;
+
     };
 
 }

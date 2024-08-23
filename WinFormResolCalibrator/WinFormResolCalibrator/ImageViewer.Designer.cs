@@ -57,14 +57,21 @@
             groupBox1 = new GroupBox();
             tableLayoutPanel3 = new TableLayoutPanel();
             tlpColorDifferent = new TableLayoutPanel();
+            tbcMethod = new TabControl();
+            tpEdge = new TabPage();
+            tableLayoutPanel4 = new TableLayoutPanel();
+            label4 = new Label();
+            nudLineSize = new NumericUpDown();
+            label3 = new Label();
+            cbbSelectSide = new ComboBox();
+            tpLineCenter = new TabPage();
+            tableLayoutPanel6 = new TableLayoutPanel();
+            label1 = new Label();
+            nudLineWidthFilter = new NumericUpDown();
             lbThreholdValue = new Label();
             label2 = new Label();
             trbThreshold = new TrackBar();
-            label4 = new Label();
             cbInvertThreshold = new CheckBox();
-            label3 = new Label();
-            cbbSelectSide = new ComboBox();
-            nudLineSize = new NumericUpDown();
             tableLayoutPanel5 = new TableLayoutPanel();
             rbColorisSimiliar = new RadioButton();
             rbColorDifferent = new RadioButton();
@@ -81,8 +88,14 @@
             groupBox1.SuspendLayout();
             tableLayoutPanel3.SuspendLayout();
             tlpColorDifferent.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)trbThreshold).BeginInit();
+            tbcMethod.SuspendLayout();
+            tpEdge.SuspendLayout();
+            tableLayoutPanel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)nudLineSize).BeginInit();
+            tpLineCenter.SuspendLayout();
+            tableLayoutPanel6.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)nudLineWidthFilter).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trbThreshold).BeginInit();
             tableLayoutPanel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pbPanel).BeginInit();
             SuspendLayout();
@@ -385,30 +398,163 @@
             tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 45.19774F));
             tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 54.80226F));
             tlpColorDifferent.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 77F));
+            tlpColorDifferent.Controls.Add(tbcMethod, 0, 2);
             tlpColorDifferent.Controls.Add(lbThreholdValue, 2, 0);
             tlpColorDifferent.Controls.Add(label2, 0, 0);
             tlpColorDifferent.Controls.Add(trbThreshold, 1, 0);
-            tlpColorDifferent.Controls.Add(label4, 0, 2);
             tlpColorDifferent.Controls.Add(cbInvertThreshold, 0, 1);
-            tlpColorDifferent.Controls.Add(label3, 0, 3);
-            tlpColorDifferent.Controls.Add(cbbSelectSide, 1, 3);
-            tlpColorDifferent.Controls.Add(nudLineSize, 1, 2);
             tlpColorDifferent.Dock = DockStyle.Fill;
             tlpColorDifferent.Location = new Point(3, 11);
             tlpColorDifferent.Name = "tlpColorDifferent";
             tlpColorDifferent.RowCount = 4;
-            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
-            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 60.9699745F));
+            tlpColorDifferent.RowStyles.Add(new RowStyle(SizeType.Percent, 39.0300255F));
             tlpColorDifferent.Size = new Size(297, 169);
             tlpColorDifferent.TabIndex = 0;
+            // 
+            // tbcMethod
+            // 
+            tlpColorDifferent.SetColumnSpan(tbcMethod, 3);
+            tbcMethod.Controls.Add(tpEdge);
+            tbcMethod.Controls.Add(tpLineCenter);
+            tbcMethod.Dock = DockStyle.Fill;
+            tbcMethod.Location = new Point(3, 63);
+            tbcMethod.Name = "tbcMethod";
+            tlpColorDifferent.SetRowSpan(tbcMethod, 2);
+            tbcMethod.SelectedIndex = 0;
+            tbcMethod.Size = new Size(291, 103);
+            tbcMethod.TabIndex = 12;
+            tbcMethod.SelectedIndexChanged += tbcMethod_SelectedIndexChanged;
+            // 
+            // tpEdge
+            // 
+            tpEdge.Controls.Add(tableLayoutPanel4);
+            tpEdge.Location = new Point(4, 24);
+            tpEdge.Name = "tpEdge";
+            tpEdge.Padding = new Padding(3);
+            tpEdge.Size = new Size(283, 75);
+            tpEdge.TabIndex = 0;
+            tpEdge.Text = "Edge Method";
+            tpEdge.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel4
+            // 
+            tableLayoutPanel4.ColumnCount = 2;
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Controls.Add(label4, 0, 0);
+            tableLayoutPanel4.Controls.Add(nudLineSize, 1, 0);
+            tableLayoutPanel4.Controls.Add(label3, 0, 1);
+            tableLayoutPanel4.Controls.Add(cbbSelectSide, 1, 1);
+            tableLayoutPanel4.Dock = DockStyle.Fill;
+            tableLayoutPanel4.Location = new Point(3, 3);
+            tableLayoutPanel4.Name = "tableLayoutPanel4";
+            tableLayoutPanel4.RowCount = 2;
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel4.Size = new Size(277, 69);
+            tableLayoutPanel4.TabIndex = 0;
+            // 
+            // label4
+            // 
+            label4.Anchor = AnchorStyles.None;
+            label4.AutoSize = true;
+            label4.Location = new Point(39, 9);
+            label4.Name = "label4";
+            label4.Size = new Size(60, 15);
+            label4.TabIndex = 11;
+            label4.Text = "Filter Size";
+            // 
+            // nudLineSize
+            // 
+            nudLineSize.Dock = DockStyle.Fill;
+            nudLineSize.Location = new Point(141, 3);
+            nudLineSize.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
+            nudLineSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            nudLineSize.Name = "nudLineSize";
+            nudLineSize.Size = new Size(133, 23);
+            nudLineSize.TabIndex = 14;
+            nudLineSize.Value = new decimal(new int[] { 10, 0, 0, 0 });
+            nudLineSize.ValueChanged += nudLineSize_ValueChanged;
+            // 
+            // label3
+            // 
+            label3.Anchor = AnchorStyles.None;
+            label3.AutoSize = true;
+            label3.Location = new Point(34, 44);
+            label3.Name = "label3";
+            label3.Size = new Size(69, 15);
+            label3.TabIndex = 12;
+            label3.Text = "Select Side";
+            // 
+            // cbbSelectSide
+            // 
+            cbbSelectSide.Dock = DockStyle.Fill;
+            cbbSelectSide.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbbSelectSide.FormattingEnabled = true;
+            cbbSelectSide.Items.AddRange(new object[] { "Right/Down", "Left/Up" });
+            cbbSelectSide.Location = new Point(141, 37);
+            cbbSelectSide.Name = "cbbSelectSide";
+            cbbSelectSide.Size = new Size(133, 23);
+            cbbSelectSide.TabIndex = 13;
+            cbbSelectSide.SelectedIndexChanged += cbbSelectSide_SelectedIndexChanged;
+            // 
+            // tpLineCenter
+            // 
+            tpLineCenter.Controls.Add(tableLayoutPanel6);
+            tpLineCenter.Location = new Point(4, 24);
+            tpLineCenter.Name = "tpLineCenter";
+            tpLineCenter.Padding = new Padding(3);
+            tpLineCenter.Size = new Size(283, 75);
+            tpLineCenter.TabIndex = 1;
+            tpLineCenter.Text = "Center Method";
+            tpLineCenter.UseVisualStyleBackColor = true;
+            // 
+            // tableLayoutPanel6
+            // 
+            tableLayoutPanel6.ColumnCount = 2;
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.Controls.Add(label1, 0, 0);
+            tableLayoutPanel6.Controls.Add(nudLineWidthFilter, 1, 0);
+            tableLayoutPanel6.Dock = DockStyle.Fill;
+            tableLayoutPanel6.Location = new Point(3, 3);
+            tableLayoutPanel6.Name = "tableLayoutPanel6";
+            tableLayoutPanel6.RowCount = 2;
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel6.Size = new Size(277, 69);
+            tableLayoutPanel6.TabIndex = 0;
+            // 
+            // label1
+            // 
+            label1.Anchor = AnchorStyles.None;
+            label1.AutoSize = true;
+            label1.Location = new Point(20, 9);
+            label1.Name = "label1";
+            label1.Size = new Size(97, 15);
+            label1.TabIndex = 0;
+            label1.Text = "Line Width Filter";
+            // 
+            // nudLineWidthFilter
+            // 
+            nudLineWidthFilter.Dock = DockStyle.Fill;
+            nudLineWidthFilter.Location = new Point(141, 3);
+            nudLineWidthFilter.Maximum = new decimal(new int[] { 9999999, 0, 0, 0 });
+            nudLineWidthFilter.Minimum = new decimal(new int[] { 3, 0, 0, 0 });
+            nudLineWidthFilter.Name = "nudLineWidthFilter";
+            nudLineWidthFilter.Size = new Size(133, 23);
+            nudLineWidthFilter.TabIndex = 2;
+            nudLineWidthFilter.Value = new decimal(new int[] { 35, 0, 0, 0 });
+            nudLineWidthFilter.ValueChanged += nudLineWidth_ValueChanged;
             // 
             // lbThreholdValue
             // 
             lbThreholdValue.Anchor = AnchorStyles.None;
             lbThreholdValue.AutoSize = true;
-            lbThreholdValue.Location = new Point(244, 13);
+            lbThreholdValue.Location = new Point(244, 7);
             lbThreholdValue.Name = "lbThreholdValue";
             lbThreholdValue.Size = new Size(28, 15);
             lbThreholdValue.TabIndex = 5;
@@ -419,7 +565,7 @@
             // 
             label2.Anchor = AnchorStyles.None;
             label2.AutoSize = true;
-            label2.Location = new Point(18, 13);
+            label2.Location = new Point(18, 7);
             label2.Name = "label2";
             label2.Size = new Size(63, 15);
             label2.TabIndex = 2;
@@ -427,23 +573,14 @@
             // 
             // trbThreshold
             // 
+            trbThreshold.Dock = DockStyle.Fill;
             trbThreshold.Location = new Point(102, 3);
             trbThreshold.Maximum = 255;
             trbThreshold.Name = "trbThreshold";
-            trbThreshold.Size = new Size(91, 36);
+            trbThreshold.Size = new Size(114, 24);
             trbThreshold.TabIndex = 1;
             trbThreshold.Value = 125;
             trbThreshold.Scroll += trbThreshold_Scroll;
-            // 
-            // label4
-            // 
-            label4.Anchor = AnchorStyles.None;
-            label4.AutoSize = true;
-            label4.Location = new Point(19, 97);
-            label4.Name = "label4";
-            label4.Size = new Size(60, 15);
-            label4.TabIndex = 11;
-            label4.Text = "Filter Size";
             // 
             // cbInvertThreshold
             // 
@@ -452,45 +589,13 @@
             cbInvertThreshold.Checked = true;
             cbInvertThreshold.CheckState = CheckState.Checked;
             tlpColorDifferent.SetColumnSpan(cbInvertThreshold, 2);
-            cbInvertThreshold.Location = new Point(51, 53);
+            cbInvertThreshold.Location = new Point(51, 35);
             cbInvertThreshold.Name = "cbInvertThreshold";
             cbInvertThreshold.Size = new Size(116, 19);
             cbInvertThreshold.TabIndex = 6;
             cbInvertThreshold.Text = "Invert Threshold";
             cbInvertThreshold.UseVisualStyleBackColor = true;
             cbInvertThreshold.CheckedChanged += checkBox1_CheckedChanged;
-            // 
-            // label3
-            // 
-            label3.Anchor = AnchorStyles.None;
-            label3.AutoSize = true;
-            label3.Location = new Point(15, 140);
-            label3.Name = "label3";
-            label3.Size = new Size(69, 15);
-            label3.TabIndex = 12;
-            label3.Text = "Select Side";
-            // 
-            // cbbSelectSide
-            // 
-            cbbSelectSide.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbbSelectSide.FormattingEnabled = true;
-            cbbSelectSide.Items.AddRange(new object[] { "Right/Down", "Left/Up" });
-            cbbSelectSide.Location = new Point(102, 129);
-            cbbSelectSide.Name = "cbbSelectSide";
-            cbbSelectSide.Size = new Size(114, 23);
-            cbbSelectSide.TabIndex = 13;
-            cbbSelectSide.SelectedIndexChanged += cbbSelectSide_SelectedIndexChanged;
-            // 
-            // nudLineSize
-            // 
-            nudLineSize.Location = new Point(102, 87);
-            nudLineSize.Maximum = new decimal(new int[] { 1000, 0, 0, 0 });
-            nudLineSize.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            nudLineSize.Name = "nudLineSize";
-            nudLineSize.Size = new Size(114, 23);
-            nudLineSize.TabIndex = 14;
-            nudLineSize.Value = new decimal(new int[] { 10, 0, 0, 0 });
-            nudLineSize.ValueChanged += nudLineSize_ValueChanged;
             // 
             // tableLayoutPanel5
             // 
@@ -598,8 +703,16 @@
             tableLayoutPanel3.ResumeLayout(false);
             tlpColorDifferent.ResumeLayout(false);
             tlpColorDifferent.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)trbThreshold).EndInit();
+            tbcMethod.ResumeLayout(false);
+            tpEdge.ResumeLayout(false);
+            tableLayoutPanel4.ResumeLayout(false);
+            tableLayoutPanel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)nudLineSize).EndInit();
+            tpLineCenter.ResumeLayout(false);
+            tableLayoutPanel6.ResumeLayout(false);
+            tableLayoutPanel6.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)nudLineWidthFilter).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trbThreshold).EndInit();
             tableLayoutPanel5.ResumeLayout(false);
             tableLayoutPanel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pbPanel).EndInit();
@@ -649,5 +762,14 @@
         private Label label3;
         private ComboBox cbbSelectSide;
         private NumericUpDown nudLineSize;
+        private TabControl tbcMethod;
+        private TabPage tpEdge;
+        private TabPage tpLineCenter;
+        private TableLayoutPanel tableLayoutPanel4;
+        private TableLayoutPanel tableLayoutPanel6;
+        private NumericUpDown nudLineWidthMax;
+        private Label label1;
+        private Label label5;
+        private NumericUpDown nudLineWidthFilter;
     }
 }
